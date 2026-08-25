@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-fraunces: "Fraunces", serif;
+  --font-inter: "Inter", sans-serif;
+}
+
+body {
+  @apply bg-eden-cream text-eden-ink font-body;
+}
+
+h1, h2, h3, .display {
+  @apply font-display;
+}
+
+/* Visible keyboard focus everywhere — accessibility floor */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid #C9A227;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Signature element: the "seal" ring — a recurring circular emblem motif
+   (confiance/trust mark) used sparingly, e.g. around the city toggle and
+   trust badges, without imitating any official certificate or state seal. */
+.seal-ring {
+  @apply relative rounded-seal border-2 border-eden-gold;
+}
+.seal-ring::before {
+  content: "";
+  @apply absolute inset-1 rounded-seal border border-eden-gold/40;
+}

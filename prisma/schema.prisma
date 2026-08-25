@@ -1,0 +1,137 @@
+// Eden Agency — Database schema
+// Run `npx prisma db push` after setting DATABASE_URL in .env
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  RECRUITER
+  ADMIN
+}
+
+enum City {
+  DOUALA
+  YAOUNDE
+}
+
+enum RoleType {
+  NOUNOU
+  MENAGERE
+  LES_DEUX
+}
+
+enum ApplicationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum LeadStatus {
+  NOUVELLE
+  EN_COURS
+  PLACEE
+  FERMEE
+}
+
+enum TestimonialStatus {
+  PENDING
+  PUBLISHED
+}
+
+// Staff / admin accounts — RBAC: RECRUITER (view/manage) vs ADMIN (full control)
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(RECRUITER)
+  createdAt    DateTime @default(now())
+  auditLogs    AuditLog[]
+}
+
+// Candidates applying as nounou/ménagère
+model Candidate {
+  id              String            @id @default(cuid())
+  fullName        String
+  dateOfBirth     DateTime
+  phone           String
+  city            City
+  quartier        String?
+  roleType        RoleType
+  yearsExperience Int
+  availability    String            // "live-in" | "live-out" | "both"
+  schedule        String            // "full-time" | "part-time"
+  startDate       DateTime?
+  experienceNotes String?           @db.Text
+  reference1Name  String?
+  reference1Phone String?
+  reference2Name  String?
+  reference2Phone String?
+  languages       String?
+  // Secure document storage — private bucket keys only, never public URLs.
+  // Signed/expiring URLs are generated on-demand by the admin dashboard.
+  cniFrontKey     String
+  cniBackKey      String
+  photoKey        String
+  cvKey           String?
+  consentGiven    Boolean           @default(false)
+  status          ApplicationStatus @default(PENDING)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  auditLogs       AuditLog[]
+}
+
+// Family / employer requests
+model Lead {
+  id          String     @id @default(cuid())
+  fullName    String
+  phone       String
+  city        City
+  roleType    RoleType
+  liveInOut   String
+  startDate   DateTime?
+  message     String?    @db.Text
+  status      LeadStatus @default(NOUVELLE)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// Manually entered by staff — no public submission form
+model Testimonial {
+  id        String            @id @default(cuid())
+  authorName String
+  city      City
+  content   String            @db.Text
+  rating    Int               @default(5)
+  status    TestimonialStatus @default(PENDING)
+  createdAt DateTime          @default(now())
+}
+
+// Editable site settings — WhatsApp numbers per branch, etc.
+// Only ADMIN role may modify; changes are written to AuditLog.
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+// Tracks who changed candidate/lead status or settings, and when.
+// Required given the app stores ID documents and personal contact data.
+model AuditLog {
+  id          String     @id @default(cuid())
+  actorId     String
+  actor       User       @relation(fields: [actorId], references: [id])
+  action      String     // e.g. "CANDIDATE_STATUS_CHANGE", "SETTING_UPDATE"
+  targetType  String
+  targetId    String
+  candidateId String?
+  candidate   Candidate? @relation(fields: [candidateId], references: [id])
+  detail      String?    @db.Text
+  createdAt   DateTime   @default(now())
+}
