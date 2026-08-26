@@ -3,7 +3,7 @@ import LeadStatusForm from "./LeadStatusForm";
 import AdminPagination from "@/components/admin/AdminPagination";
 
 const PAGE_SIZE = 20;
-
+export const dynamic = "force-dynamic";
 export default async function LeadsAdminPage({
   searchParams,
 }: {
