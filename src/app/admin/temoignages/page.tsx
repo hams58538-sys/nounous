@@ -1,12 +1,12 @@
 import { prisma } from "@/lib/prisma";
 import TestimonialActions from "./TestimonialActions";
 import NewTestimonialForm from "./NewTestimonialForm";
-
+export const dynamic = "force-dynamic";
 export default async function TestimonialsAdminPage() {
   const testimonials = await prisma.testimonial.findMany({
     orderBy: { createdAt: "desc" },
   });
-export const dynamic = "force-dynamic";
+
   return (
     <div className="mx-auto max-w-4xl px-5 py-12">
       <h1 className="font-display text-2xl font-semibold text-eden-green">
