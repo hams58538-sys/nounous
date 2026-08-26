@@ -99,7 +99,7 @@ export default function ApplyForm() {
 
   if (whatsappHref) {
     return (
-      <div className="mt-8 rounded-2xl border border-eden-gold/40 bg-white p-8 text-center">
+      <div className="mt-8 rounded-2xl border border-eden-gold/40 bg-white/75 p-8 text-center shadow-lg backdrop-blur-[12px] [-webkit-backdrop-filter:blur(12px)]">
         <p className="font-display text-xl font-semibold text-eden-green">
           Candidature envoyée !
         </p>
@@ -120,7 +120,7 @@ export default function ApplyForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+    <form onSubmit={handleSubmit} className="mt-8 space-y-5 rounded-2xl border border-eden-gold/40 bg-eden-cream/75 p-6 shadow-lg backdrop-blur-[12px] [-webkit-backdrop-filter:blur(12px)] sm:p-8">
       {/* Honeypot field — hidden from real users via CSS, bots fill it */}
       <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
 

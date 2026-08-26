@@ -11,7 +11,8 @@ export const metadata: Metadata = {
 
 export default function DoualaPage() {
   return (
-    <div className="mx-auto max-w-4xl px-5 py-16">
+    <section className="bg-cover bg-center" style={{ backgroundImage: 'url("/images/housebg.jpg")' }}>
+      <div className="mx-auto max-w-4xl bg-eden-cream/70 px-5 py-16 backdrop-blur-[12px] [-webkit-backdrop-filter:blur(12px)]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -60,6 +61,7 @@ export default function DoualaPage() {
           className="!bg-transparent !text-eden-green border-2 border-eden-green hover:!bg-eden-green hover:!text-eden-cream"
         />
       </div>
-    </div>
+      </div>
+    </section>
   );
 }

@@ -13,11 +13,12 @@ export async function notifyStaff(subject: string, body: string) {
   }
   try {
     await resend.emails.send({
-      from: "Eden Agency <notifications@edenagency.cm>",
+      from: "Eden Agency <onboarding@resend.dev>",
       to: process.env.NOTIFY_EMAIL,
       subject,
       text: body,
     });
+  console.log("Email notification sent to staff:", subject);
   } catch (err) {
     console.error("Email notification failed", err);
   }

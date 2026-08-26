@@ -2,14 +2,16 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import ChangePasswordModal from "./ChangePasswordModal";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   const role = (session?.user as { role?: string } | undefined)?.role;
 
-  const [pendingCandidates, newLeads] = await Promise.all([
+  const [pendingCandidates, newLeads, pendingTestimonials] = await Promise.all([
     prisma.candidate.count({ where: { status: "PENDING" } }),
     prisma.lead.count({ where: { status: "NOUVELLE" } }),
+    prisma.testimonial.count({ where: { status: "PENDING" } }),
   ]);
 
   return (
@@ -34,6 +36,13 @@ export default async function DashboardPage() {
           <p className="text-3xl font-semibold text-eden-green">{newLeads}</p>
           <p className="text-sm text-eden-ink/70">Nouvelles demandes de familles</p>
         </Link>
+        <Link
+          href="/admin/temoignages"
+          className="rounded-2xl border border-eden-gold/40 bg-white p-6 transition hover:shadow-md sm:col-span-2"
+        >
+          <p className="text-3xl font-semibold text-eden-green">{pendingTestimonials}</p>
+          <p className="text-sm text-eden-ink/70">Témoignages en attente de publication</p>
+        </Link>
       </div>
 
       {role === "ADMIN" && (
@@ -44,6 +53,7 @@ export default async function DashboardPage() {
           Gérer les paramètres (numéros WhatsApp, comptes staff) →
         </Link>
       )}
+      <ChangePasswordModal />
     </div>
   );
 }

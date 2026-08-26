@@ -1,17 +1,31 @@
 import { prisma } from "@/lib/prisma";
 import CandidateStatusForm from "./CandidateStatusForm";
 import DocumentViewer from "./DocumentViewer";
+import AdminPagination from "@/components/admin/AdminPagination";
 
-export default async function CandidatesAdminPage() {
-  const candidates = await prisma.candidate.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 100,
-  });
+const PAGE_SIZE = 20;
+
+export default async function CandidatesAdminPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  const page = Math.max(1, parseInt(searchParams.page ?? "1", 10) || 1);
+
+  const [candidates, total] = await Promise.all([
+    prisma.candidate.findMany({
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.candidate.count(),
+  ]);
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-12">
       <h1 className="font-display text-2xl font-semibold text-eden-green">
-        Candidatures ({candidates.length})
+        Candidatures ({total})
       </h1>
       <p className="mt-1 text-sm text-eden-ink/60">
         Les documents (CNI, photo) sont stockés de façon privée. Cliquez sur
@@ -37,6 +51,8 @@ export default async function CandidatesAdminPage() {
           <p className="text-sm text-eden-ink/60">Aucune candidature pour le moment.</p>
         )}
       </div>
+
+      <AdminPagination basePath="/admin/candidats" page={page} totalPages={totalPages} />
     </div>
   );
 }

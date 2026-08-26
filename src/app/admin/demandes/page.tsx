@@ -1,19 +1,30 @@
 import { prisma } from "@/lib/prisma";
+import LeadStatusForm from "./LeadStatusForm";
+import AdminPagination from "@/components/admin/AdminPagination";
 
-const statusLabels: Record<string, string> = {
-  NOUVELLE: "Nouvelle",
-  EN_COURS: "En cours",
-  PLACEE: "Placée",
-  FERMEE: "Fermée",
-};
+const PAGE_SIZE = 20;
 
-export default async function LeadsAdminPage() {
-  const leads = await prisma.lead.findMany({ orderBy: { createdAt: "desc" }, take: 100 });
+export default async function LeadsAdminPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  const page = Math.max(1, parseInt(searchParams.page ?? "1", 10) || 1);
+
+  const [leads, total] = await Promise.all([
+    prisma.lead.findMany({
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.lead.count(),
+  ]);
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-12">
       <h1 className="font-display text-2xl font-semibold text-eden-green">
-        Demandes de familles ({leads.length})
+        Demandes de familles ({total})
       </h1>
 
       <div className="mt-6 space-y-4">
@@ -27,9 +38,7 @@ export default async function LeadsAdminPage() {
                 </p>
                 {l.message && <p className="mt-1 text-sm text-eden-ink/80">{l.message}</p>}
               </div>
-              <span className="rounded-full bg-eden-green/10 px-3 py-1 text-xs font-semibold text-eden-green">
-                {statusLabels[l.status]}
-              </span>
+              <LeadStatusForm id={l.id} currentStatus={l.status} />
             </div>
           </div>
         ))}
@@ -37,6 +46,8 @@ export default async function LeadsAdminPage() {
           <p className="text-sm text-eden-ink/60">Aucune demande pour le moment.</p>
         )}
       </div>
+
+      <AdminPagination basePath="/admin/demandes" page={page} totalPages={totalPages} />
     </div>
   );
 }
