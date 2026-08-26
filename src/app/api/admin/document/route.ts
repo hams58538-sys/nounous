@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
   // Signed URL valid for 5 minutes — short enough that a leaked link is low-risk,
   // long enough for staff to actually view the document.
   const expiresAt = Math.floor(Date.now() / 1000) + 5 * 60;
-  const url = cloudinary.utils.private_download_url(publicId, undefined, {
+  const url = cloudinary.utils.private_download_url(publicId, "", {
     type: "authenticated",
     resource_type: "image",
     expires_at: expiresAt,
